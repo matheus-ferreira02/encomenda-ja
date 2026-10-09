@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Encomenda Já</title>
+<meta name="description" content="Proposta acadêmica de uma nova modalidade de entrega nos Correios para cidades do interior: centros regionais, rotas inteligentes e rastreio em tempo real.">
+<meta property="og:title" content="Encomenda Já – Correios mais rápidos no interior">
+<meta property="og:description" content="Você usaria uma modalidade dos Correios que entrega no interior em até 48h? Responda em 1 minuto.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Layout: sinalização de rodovia. Faixa verde de placa no topo, conteúdo em coluna única, formulário como destino final. */
+:root{
+  --bg:#F4F6F2; --surface:#FFFFFF; --ink:#16211C; --muted:#56635C; --line:#D5DDD6;
+  --sign:#0E5A3A; --sign-ink:#FFFFFF; --tape:#F3C12B; --tape-ink:#1B1A10; --bad:#B4432F; --good:#0E7A4B;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1512; --surface:#18211C; --ink:#E8EEE9; --muted:#A3B1A8; --line:#2B3A32;
+  --sign:#127047; --sign-ink:#FFFFFF; --tape:#F3C12B; --tape-ink:#1B1A10; --bad:#E27A63; --good:#4CC38A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1512; --surface:#18211C; --ink:#E8EEE9; --muted:#A3B1A8; --line:#2B3A32;
+  --sign:#127047; --sign-ink:#FFFFFF; --tape:#F3C12B; --tape-ink:#1B1A10; --bad:#E27A63; --good:#4CC38A; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--body)}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px}
+h1,h2,h3{font-family:var(--display);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:.005em}
+h2{font-size:clamp(30px,5vw,44px);text-transform:uppercase}
+p{margin:0}
+a{color:inherit}
+.eyebrow{font:600 13px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+section{padding-block:64px}
+
+/* Topo: placa */
+.hero{background:var(--sign);color:var(--sign-ink);padding-block:28px 64px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:10px;
+  background:repeating-linear-gradient(90deg,var(--tape) 0 48px,transparent 48px 80px)}
+.brand{display:flex;align-items:center;gap:10px;font:800 24px/1 var(--display);text-transform:uppercase;letter-spacing:.04em}
+.brand svg{flex:none}
+.hero-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;margin-top:48px}
+.hero-grid>*{min-width:0}
+.hero h1{font-size:clamp(40px,7.2vw,76px);font-weight:800;text-transform:uppercase}
+.hero h1 em{font-style:normal;color:var(--tape)}
+.hero .lead{font-size:clamp(18px,2.2vw,21px);margin-top:20px;max-width:34em;opacity:.95}
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:28px;background:var(--tape);color:var(--tape-ink);
+  font:700 20px/1 var(--display);text-transform:uppercase;letter-spacing:.04em;padding:18px 26px;border-radius:4px;text-decoration:none;border:0;cursor:pointer}
+.cta:hover{filter:brightness(1.06)}
+.cta:focus-visible,input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--tape);outline-offset:3px}
+.cta-note{font-size:14px;margin-top:12px;opacity:.85}
+
+/* Etiqueta de rastreio (exemplo) */
+.label{background:#FFFFFF;color:#16211C;border-radius:6px;padding:20px 22px;box-shadow:0 18px 40px rgba(0,0,0,.28);transform:rotate(1.2deg);font-size:15px}
+.label-head{display:flex;justify-content:space-between;gap:12px;border-bottom:2px dashed #C9D2CB;padding-bottom:12px;margin-bottom:14px}
+.label code{font:500 13px/1.3 var(--mono);color:#56635C}
+.label .tag{font:700 12px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;background:#E7F3EC;color:#0E5A3A;padding:6px 8px;border-radius:3px;white-space:nowrap}
+.track{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.track li{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:start}
+.track .dot{width:12px;height:12px;border-radius:50%;background:#0E5A3A;margin-top:5px}
+.track li:last-child .dot{background:#F3C12B;box-shadow:0 0 0 3px #0E5A3A}
+.track time{font:500 13px/1.6 var(--mono);color:#56635C}
+.label-foot{margin-top:14px;padding-top:12px;border-top:1px solid #E1E6E2;display:flex;justify-content:space-between;font-weight:600}
+.label-foot span:last-child{font-family:var(--mono);color:#0E5A3A}
+.example{font-size:12px;color:var(--sign-ink);opacity:.75;margin-top:10px;text-align:right}
+
+/* Problema */
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:32px}
+.pain{border-top:4px solid var(--bad);padding-top:16px}
+.pain h3{font-size:24px;text-transform:uppercase;margin-bottom:8px}
+.pain p{color:var(--muted)}
+.result{margin-top:32px;font-size:19px;max-width:44em}
+.result strong{color:var(--bad)}
+
+/* Solução */
+.solution{background:var(--surface);border-block:1px solid var(--line)}
+.steps{list-style:none;margin:32px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;counter-reset:s}
+.steps li{counter-increment:s;min-width:0}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:44px;height:44px;border-radius:4px;background:var(--sign);color:var(--sign-ink);font:800 24px/1 var(--display);margin-bottom:14px}
+.steps h3{font-size:22px;text-transform:uppercase;margin-bottom:6px}
+.steps p{color:var(--muted);font-size:16px}
+
+/* Comparação */
+.table-scroll{overflow-x:auto;margin-top:28px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:16px}
+th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font:700 16px/1.1 var(--display);text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+thead th.us{color:var(--sign);background:color-mix(in srgb,var(--tape) 22%,transparent)}
+td.us{background:color-mix(in srgb,var(--tape) 12%,transparent);font-weight:600}
+tbody tr:last-child td{border-bottom:0}
+.y{color:var(--good);font-weight:600}.n{color:var(--bad);font-weight:600}
+
+/* Formulário */
+.form-sec{background:var(--sign);color:var(--sign-ink)}
+.form-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center}
+.form-grid>*{min-width:0}
+.form-sec h2{color:var(--sign-ink)}
+.form-sec .intro p{margin-top:16px;opacity:.92}
+.perks{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:10px}
+.perks li{padding-left:26px;position:relative}
+.perks li::before{content:"";position:absolute;left:0;top:.5em;width:12px;height:12px;background:var(--tape);border-radius:2px}
+.form-card{display:grid}
+.form-card h3{font-size:30px;text-transform:uppercase}
+.form-card p{color:var(--muted)}
+.form-card .cta{margin-top:0;width:100%;justify-content:center;font-size:24px;padding:24px 28px}
+.form-note{font-size:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:grid;gap:6px;min-width:0}
+label{font-weight:600;font-size:15px}
+label .opt{font-weight:400;color:var(--muted)}
+input,select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:4px;padding:12px}
+input:focus,select:focus{border-color:var(--sign)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);font-weight:400}
+.check input{width:auto;margin-top:3px}
+form .cta{margin-top:4px;width:100%;justify-content:center}
+.status{font-size:15px;border-radius:4px;padding:12px 14px}
+.status.ok{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);font-weight:600}
+.status.err{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+
+/* FAQ e rodapé */
+.faq{display:grid;gap:12px;margin-top:28px;max-width:760px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+summary{cursor:pointer;font-weight:600}
+details p{margin-top:10px;color:var(--muted)}
+footer{padding-block:32px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+
+@media (max-width:860px){
+  .hero-grid,.form-grid{grid-template-columns:1fr}
+  .problem-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .label{transform:none}
+}
+@media (max-width:520px){
+  .steps,.row{grid-template-columns:1fr}
+  section{padding-block:48px}
+}
+
+/* Ilustrações */
+.map-txt{font:500 12px var(--body);fill:var(--ink)}
+.map-cap{font:600 12px var(--body);fill:var(--muted)}
+.usage{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:32px}
+.usage figure{margin:0;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.usage .art{background:color-mix(in srgb,var(--sign) 10%,var(--bg));padding:18px;display:grid;place-items:center}
+.usage .art svg{width:100%;max-width:280px;height:auto;display:block}
+.usage figcaption{padding:16px 18px 20px}
+.usage figcaption h3{font-size:22px;text-transform:uppercase;margin-bottom:6px}
+.usage figcaption p{color:var(--muted);font-size:16px}
+@media (max-width:860px){</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 20h7l3-10h4" fill="none" stroke="#F3C12B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Encomenda Já
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <h1>E se o seu envio pelos Correios chegasse no interior em <em>até 48h</em>?</h1>
+        <p class="lead">Os Correios já chegam a todas as cidades do país. O problema é a demora e o rastreio que trava. A Encomenda Já é uma proposta de nova modalidade de entrega <strong>dentro dos Correios</strong>: a triagem passa a ser feita em centros regionais, as rotas são planejadas por tecnologia e o rastreio funciona em tempo real.</p>
+      </div>
+
+      <div>
+        <div class="label" aria-label="Exemplo de rastreamento de uma entrega na modalidade proposta">
+          <div class="label-head">
+            <div><strong>Envio Encomenda Já</strong><br><code>EJ 2026 0930 0417</code></div>
+            <span class="tag">Entregue</span>
+          </div>
+          <ol class="track">
+            <li><span class="dot"></span><span>Coletado na loja<br><small>Franca/SP</small></span><time>seg 09:10</time></li>
+            <li><span class="dot"></span><span>Triagem no centro regional<br><small>Ribeirão Preto/SP, sem ir à capital</small></span><time>seg 14:32</time></li>
+            <li><span class="dot"></span><span>Saiu para entrega<br><small>aviso enviado no WhatsApp</small></span><time>ter 08:05</time></li>
+            <li><span class="dot"></span><span>Entregue ao cliente<br><small>Sertãozinho/SP</small></span><time>ter 11:47</time></li>
+          </ol>
+          <div class="label-foot"><span>Tempo total</span><span>26h 37min</span></div>
+        </div>
+        <p class="example">Exemplo ilustrativo de como o rastreio funcionaria</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="problema">
+    <div class="wrap">
+      <p class="eyebrow">O problema</p>
+      <h2>Os Correios chegam ao interior, mas chegam devagar</h2>
+      <div class="problem-grid">
+        <div class="pain">
+          <h3>Pacote vai e volta</h3>
+          <p>A triagem é concentrada nos grandes centros. Um pacote entre duas cidades vizinhas do interior muitas vezes vai até a capital e depois volta, e isso custa dias.</p>
+        </div>
+        <div class="pain">
+          <h3>Rastreio que trava</h3>
+          <p>O código fica dias sem atualizar. O cliente pergunta onde está a encomenda e o lojista não sabe responder.</p>
+        </div>
+        <div class="pain">
+          <h3>Lojista vai embora</h3>
+          <p>Quem pode troca os Correios por transportadoras privadas. Mas elas focam nas capitais e, no interior, não atendem ou cobram caro.</p>
+        </div>
+      </div>
+      <p class="result">O resultado: <strong>o lojista do interior perde vendas e os Correios perdem clientes</strong> justamente onde são a única opção que chega a todo lugar.</p>
+    </div>
+  </section>
+
+  <section class="solution" id="solucao">
+    <div class="wrap">
+      <p class="eyebrow">A proposta</p>
+      <h2>O que muda nos Correios com a Encomenda Já</h2>
+      <ol class="steps">
+        <li><h3>Centros regionais</h3><p>A triagem é feita em centros regionais no interior. O pacote segue direto de uma cidade para a outra, sem passar pela capital.</p></li>
+        <li><h3>Rotas inteligentes</h3><p>Um software planeja as rotas de entrega e evita viagens vazias ou desnecessárias. Isso reduz o prazo e o custo da operação.</p></li>
+        <li><h3>Rastreio real</h3><p>Rastreamento por GPS e avisos automáticos no WhatsApp para o lojista e para o cliente final.</p></li>
+        <li><h3>Coleta e garantia</h3><p>Coleta agendada na loja, sem precisar ir à agência. Se atrasar, o lojista recebe desconto no frete.</p></li>
+      </ol>
+      <p class="result" style="color:var(--muted);font-size:17px">Tudo isso usando a estrutura que os Correios já têm: agências, frota e presença em todos os municípios.</p>
+    </div>
+  </section>
+
+  <section id="na-pratica">
+    <div class="wrap">
+      <p class="eyebrow">Na prática</p>
+      <h2>Como fica o dia a dia do lojista</h2>
+      <div class="usage">
+        <figure>
+          <div class="art">
+            <svg viewBox="0 0 260 160" role="img" aria-label="Veículo de coleta parado em frente a uma loja">
+              <rect x="0" y="138" width="260" height="22" fill="var(--line)"/>
+              <rect x="14" y="40" width="112" height="98" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+              <path d="M10 40h120l-8 -20H18z" fill="var(--tape)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M34 20v20M54 20v20M74 20v20M94 20v20M114 20v20" stroke="var(--ink)" stroke-width="1.5"/>
+              <rect x="28" y="60" width="44" height="34" fill="color-mix(in srgb,var(--sign) 18%,transparent)" stroke="var(--ink)" stroke-width="2"/>
+              <rect x="84" y="70" width="30" height="68" fill="var(--sign)" stroke="var(--ink)" stroke-width="2"/>
+              <rect x="34" y="100" width="20" height="16" fill="#C89B5A" stroke="var(--ink)" stroke-width="1.5"/>
+              <rect x="146" y="74" width="80" height="54" rx="4" fill="var(--sign)" stroke="var(--ink)" stroke-width="2.5"/>
+              <path d="M226 88h16l12 18v22h-28z" fill="var(--sign)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M230 92h10l8 12h-18z" fill="var(--surface)"/>
+              <rect x="146" y="96" width="80" height="8" fill="var(--tape)"/>
+              <circle cx="170" cy="132" r="10" fill="var(--ink)"/><circle cx="170" cy="132" r="4" fill="var(--surface)"/>
+              <circle cx="236" cy="132" r="10" fill="var(--ink)"/><circle cx="236" cy="132" r="4" fill="var(--surface)"/>
+            </svg>
+          </div>
+          <figcaption><h3>1. Agenda a coleta</h3><p>O lojista marca o horário pelo painel ou pelo WhatsApp. O carro dos Correios passa na loja e leva os pacotes, sem fila na agência.</p></figcaption>
+        </figure>
+        <figure>
+          <div class="art">
+            <svg viewBox="0 0 260 160" role="img" aria-label="Painel do lojista com a lista de pedidos e o status de cada entrega">
+              <rect x="6" y="8" width="248" height="146" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+              <path d="M6 30h248" stroke="var(--ink)" stroke-width="2"/>
+              <circle cx="20" cy="19" r="4" fill="var(--bad)"/><circle cx="33" cy="19" r="4" fill="var(--tape)"/><circle cx="46" cy="19" r="4" fill="var(--good)"/>
+              <text x="62" y="23" class="map-cap" style="font-size:11px">Painel do lojista</text>
+              <g class="map-txt" style="font-size:11px">
+                <text x="18" y="54">#4821 Sertãozinho</text><rect x="168" y="42" width="72" height="17" rx="3" fill="color-mix(in srgb,var(--good) 20%,transparent)"/><text x="176" y="54" fill="var(--good)" style="fill:var(--good);font-weight:600">Entregue</text>
+                <path d="M18 66h222" stroke="var(--line)"/>
+                <text x="18" y="86">#4822 Batatais</text><rect x="168" y="74" width="72" height="17" rx="3" fill="color-mix(in srgb,var(--tape) 35%,transparent)"/><text x="176" y="86" style="font-weight:600">Em rota</text>
+                <path d="M18 98h222" stroke="var(--line)"/>
+                <text x="18" y="118">#4823 Orlândia</text><rect x="168" y="106" width="72" height="17" rx="3" fill="color-mix(in srgb,var(--sign) 18%,transparent)"/><text x="176" y="118" style="fill:var(--sign);font-weight:600">No centro</text>
+                <path d="M18 130h222" stroke="var(--line)"/>
+                <text x="18" y="146" class="map-cap" style="font-size:10px">3 pedidos · previsão média 31h</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><h3>2. Acompanha no painel</h3><p>Cada pedido mostra onde está e quando chega. O lojista para de abrir chamado para descobrir onde a encomenda parou.</p></figcaption>
+        </figure>
+        <figure>
+          <div class="art">
+            <svg viewBox="0 0 260 160" role="img" aria-label="Celular do cliente recebendo aviso de que o pedido saiu para entrega">
+              <rect x="80" y="4" width="100" height="156" rx="14" fill="var(--ink)"/>
+              <rect x="86" y="18" width="88" height="142" rx="4" fill="var(--bg)"/>
+              <rect x="112" y="9" width="36" height="4" rx="2" fill="var(--muted)"/>
+              <rect x="86" y="18" width="88" height="18" fill="var(--sign)"/>
+              <text x="92" y="30" style="font:600 9px var(--body);fill:#fff">Encomenda Já</text>
+              <rect x="92" y="44" width="74" height="40" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+              <text x="97" y="56" style="font:500 7.5px var(--body);fill:var(--ink)">Seu pedido #4821</text>
+              <text x="97" y="66" style="font:500 7.5px var(--body);fill:var(--ink)">saiu p/ entrega.</text>
+              <text x="97" y="77" style="font:600 7.5px var(--body);fill:var(--sign)">Chega até 14h</text>
+              <rect x="92" y="92" width="74" height="30" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+              <text x="97" y="104" style="font:500 7.5px var(--body);fill:var(--ink)">Pedido entregue</text>
+              <text x="97" y="115" style="font:500 7.5px var(--body);fill:var(--muted)">hoje às 11:47</text>
+              <circle cx="160" cy="118" r="0" fill="none"/>
+              <rect x="40" y="58" width="34" height="28" rx="4" fill="#C89B5A" stroke="var(--ink)" stroke-width="2"/><path d="M40 68h34M57 58v10" stroke="var(--ink)" stroke-width="2"/>
+              <path d="M196 60l14 -8M198 76h18M196 92l14 8" stroke="var(--tape)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <figcaption><h3>3. O cliente é avisado</h3><p>O cliente final recebe aviso automático no WhatsApp quando o pedido sai para entrega e quando chega. Menos reclamação para a loja.</p></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="comparacao">
+    <div class="wrap">
+      <p class="eyebrow">Por que faz sentido</p>
+      <h2>O alcance dos Correios com a velocidade de uma transportadora</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th></th><th>Correios hoje</th><th>Transportadoras privadas</th><th class="us">Correios + Encomenda Já</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Atende cidades do interior</th><td class="y">Sim</td><td class="n">Pouco ou nada</td><td class="us y">Sim</td></tr>
+            <tr><th scope="row">Prazo entre cidades da região</th><td class="n">Vários dias</td><td>Rápido, só nas capitais</td><td class="us">Até 48h</td></tr>
+            <tr><th scope="row">Rastreamento</th><td class="n">Atualiza pouco</td><td class="y">Bom</td><td class="us y">GPS e WhatsApp</td></tr>
+            <tr><th scope="row">Coleta na loja</th><td class="n">Só em contratos maiores</td><td>Só com volume alto</td><td class="us y">Sim, agendada</td></tr>
+            <tr><th scope="row">Se atrasar</th><td class="n">Nada muda</td><td class="n">Nada muda</td><td class="us y">Desconto no frete</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="form-sec" id="lista">
+    <div class="wrap form-grid">
+      <div class="intro">
+        <p class="eyebrow" style="color:var(--sign-ink);opacity:.8">Participe</p>
+        <h2>Você usaria essa modalidade nos Correios?</h2>
+        <p>Estamos testando se lojistas do interior querem essa melhoria nos Correios. Se você vende online e envia para cidades fora das capitais, sua resposta conta muito.</p>
+      </div>
+
+      <div class="form-card">
+        <a class="cta js-form-link" href="https://docs.google.com/forms/d/e/1FAIpQLSeuiJQQw52YYwzFKY9hQHfGg_3bpcW4tPeSaestHa7RvZreGg/viewform" target="_blank" rel="noopener">Responda o formulário <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="duvidas">
+    <div class="wrap">
+      <p class="eyebrow">Dúvidas</p>
+      <h2>Perguntas rápidas</h2>
+      <div class="faq">
+        <details><summary>Isso é um serviço oficial dos Correios?</summary><p>Não. A Encomenda Já é uma proposta de melhoria para os Correios, criada por uma equipe de estudantes. Esta página testa se lojistas usariam essa modalidade.</p></details>
+        <details><summary>Por que melhorar os Correios em vez de usar uma transportadora?</summary><p>Porque os Correios são os únicos que já chegam a todas as cidades. O que falta é velocidade e rastreio confiável, e é isso que a proposta resolve.</p></details>
+        <details><summary>Preciso pagar alguma coisa?</summary><p>Não. É só uma pesquisa de interesse, sem compromisso.</p></details>
+        <details><summary>O que vocês fazem com os meus dados?</summary><p>Usamos apenas para contar o interesse na proposta e para enviar o resultado da pesquisa a quem aceitou receber.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Encomenda Já · Proposta acadêmica da Equipe 1 – Projetos Empreendedores · Sem vínculo oficial com os Correios</div>
+</footer>
+
+<script>
+/* ============ CONFIGURAÇÃO ============
+   Cole aqui o link do formulário (Google Forms, Microsoft Forms etc.). */
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeuiJQQw52YYwzFKY9hQHfGg_3bpcW4tPeSaestHa7RvZreGg/viewform";
+/* ===================================== */
+document.querySelectorAll(".js-form-link").forEach(a => {
+  if (FORM_URL.startsWith("http")) { a.href = FORM_URL; }
+  else { a.href = "#lista"; a.removeAttribute("target"); }
+});
+</script>
+</body>
+</html>
